@@ -22,7 +22,7 @@ def signup():
         name = data.get('name')
 
         if not email or not password:
-            return jsonify({"error": "Missing email or password"}), 400
+            return jsonify({"error": "Missing email or password"}), 401
 
         existing_user = mongo.db.users.find_one({"email": email})
         if existing_user:
