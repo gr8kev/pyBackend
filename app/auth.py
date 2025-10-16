@@ -46,3 +46,32 @@ def signup():
 
     except Exception as e:
         return jsonify({"msg": "Error during signup", "error": str(e)}), 500
+
+
+@auth.route('/login', methods=['POST'])
+def login():
+    try:
+        data = request.get_json()
+
+        if not data:
+            return jsonify({"msg": "Missing JSON in request"}), 400
+
+        email = data.get('email')
+        password = data.get('password')
+
+        if not email or not password:
+            return jsonify({"msg": "Missing email or password"}), 402
+
+        user = mongo.db.users.find_one({"email": email})
+        if not user or not bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+            return jsonify({"msg": "Bad email or password"}), 401
+
+        access_token = create_access_token(
+            identity=email,
+            expires_delta=timedelta(days=7)
+        )
+
+        return jsonify({"msg": "Login successful", "access_token": access_token}), 200
+
+    except Exception as e:
+        return jsonify({"msg": "Error during login", "error": str(e)}), 500
